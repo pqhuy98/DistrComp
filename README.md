@@ -1,44 +1,50 @@
 # DistrComp
 A distributed computing library.
 
-This library contains 4 main function : `node_id`, `n_node`, `send`, `recv`.  
+This library contains 4 main function : `node_id`, `n_node`, `send`, `recv`. Using these 4 functions, one can parallelize a program across multi machines.  
 You can send / receive many types of data (list, dict, set, numpy array,...), as long as they are pickle-able.
 
+<h2>Example</h2>
+
 ```python
+"""
+Node i sends a string to the node (i+1) % number_of_nodes
+and receive its string from node (i-1) % number_of_nodes (ie. a circle).
+"""
 import message as ms
 
 ms.setup_connection()
 
-rank = ms.node_id
+myID = ms.node_id
 nodes = ms.n_node
-nxt = (rank+1)%nodes
-pre = (rank-1+nodes)%nodes
+nxt = (myID+1)%nodes
+pre = (myID-1+nodes)%nodes # avoid negative value
 
-print "My ID is", rank
-ms.send(nxt, "Next to %i is %i" % (rank, nxt))
+print "My ID is", myID
+ms.send(nxt, "Next to %i is %i" % (myID, nxt))
 msg = ms.recv(pre)
 
 print msg
 ```
 Output on my cluster :
 ```
---------(Node 192.168.0.179 return)--------
-My ID is 1
-Next to 0 is 1
+--------(Node localhost     return)--------
+My ID is 2
+Next to 1 is 2
 
 --------(Node 192.168.0.113 return)--------
 My ID is 3
 Next to 2 is 3
 
+--------(Node 192.168.0.179 return)--------
+My ID is 1
+Next to 0 is 1
+
 --------(Node 192.168.0.169 return)--------
 My ID is 0
 Next to 3 is 0
 
---------(Node localhost     return)--------
-My ID is 2
-Next to 1 is 2
-
-Total time : 1.455.
+Total time : 1.523.
 ```
 
 <h2>How to use</h2>  
@@ -48,14 +54,14 @@ Suppose you have `N` machine, then `1` of them would be master and `N-1` of them
 On <b>each</b> worker machine :  
 
 1) Put `distrComp.py` and `worker.py` into a folder.
-2) Run command line `python -B worker.py`.
+2) Run command line `python -B worker.py` inside that folder.
 
 On master machine :  
 
 1) Create file `peers.txt` contains IPs of all machines.
-2) Place `peers.txt`, `distrComp.py`, `message.py` and `master.py` into folder which contains `myprogram.py`.
-3) Tweak `master.py` constants to fit your purpose. Don't be afraid of reading the code.
-4) When you're ready to go, run `python -B master.py`. Your `myprogram.py` would be automatically distributed to all workers.
+2) Place `peers.txt`, `distrComp.py`, `message.py` and `master.py` into the folder which contains `myprogram.py`.
+3) Tweak `master.py` constants to fit your purpose. Read the comments. Don't be afraid to read the code.
+4) When you're ready to go, run `python -B master.py`. Your `myprogram.py` would be automatically executed by all machines at the same time.
 4) If you're still confused, then read...
 
 <h2>How it works</h2>
