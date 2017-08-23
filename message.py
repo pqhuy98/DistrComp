@@ -1,5 +1,4 @@
-
-
+from __future__ import print_function
 import socket
 import traceback
 import threading
@@ -18,8 +17,8 @@ peers_file = "peers.txt"
 #------
 # Utils
 #------
-def safe_print(content) :
-    print "Time : %i -- {0}\n".format(content,int(round(time.time()*1000))%100000),
+def time_print(content) :
+    print("Time : %i -- {0}\n".format(int(round(time.time()*1000))%100000), content)
 def get_port() :
     with open(common_port_file,"r") as f :
         res = int(f.read())
@@ -93,15 +92,14 @@ connect_to = list(i2ip[:node_id]) #List of IP that this node will connect to
 nodes = len(listen_to)
 
 if (debug) :
-    safe_print("ID : %i, port : %i."%(node_id,port))
-
+    time_print("ID : %i, port : %i."%(node_id,port))
 
 "==================================C-O-N-N-E-C-T=================================="
 def listen_to_others() :
     global port,sock,listen_to
     #-----------------------------------
     if (debug) :
-        safe_print("Listen to %s at port %i."%(str(listen_to),port))
+        time_print("Listen to %s at port %i."%(str(listen_to),port))
     #-----------------------------------
     tmp_sock = socket.socket()
     tmp_sock.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
@@ -113,7 +111,7 @@ def listen_to_others() :
             sk,address = tmp_sock.accept()
             #-----------------------------------
             if (debug) :
-                safe_print("Get connection from %s."%str(address))
+                time_print("Get connection from %s."%str(address))
             #-----------------------------------
             if (address[0] in listen_to) :
                 listen_to.remove(address[0])
@@ -123,18 +121,18 @@ def listen_to_others() :
                 #-----------------------------------
                 sk.close()
                 if (debug) :
-                    safe_print("Rejected : %s."%str(address))
+                    time_print("Rejected : %s."%str(address))
                 #-----------------------------------
                 pass
     except :
-        safe_print(traceback.format_exc())
+        time_print(traceback.format_exc())
     tmp_sock.close()
 
 def _connect(ip,port) :
     idx = ip2i[ip]
     #-----------------------------------
     if (debug) :
-        safe_print("Try to connect to %s by socket %i"%(str((ip,port)),idx))
+        time_print("Try to connect to %s by socket %i"%(str((ip,port)),idx))
     #-----------------------------------
     global sock, sock_avail
     cnt = 0
@@ -154,16 +152,16 @@ def _connect(ip,port) :
     #-----------------------------------
     if (debug) :
         if (succ) :
-            safe_print("Succeed after %i attempts."%cnt)
+            time_print("Succeed after %i attempts."%cnt)
         else :
-            safe_print("Failed after %i attempts."%cnt)
+            time_print("Failed after %i attempts."%cnt)
     #-----------------------------------
     
 def connect_to_others() :
     global port,sock,connect_to
     #-----------------------------------
     if (debug) :
-        safe_print("Connect to %s at port %i."%(str(connect_to),port))
+        time_print("Connect to %s at port %i."%(str(connect_to),port))
     #-----------------------------------
     thr = []
     for ip in connect_to :
@@ -178,7 +176,7 @@ def setup_connection() :
     start = clock()
     #-----------------------------------
     if (debug) :
-        safe_print("Setup connection.")
+        time_print("Setup connection.")
     #-----------------------------------
     global sock
     try :
@@ -189,7 +187,7 @@ def setup_connection() :
         thr_listen.join()
         thr_connect.join()
         stop = clock()
-        print "Setup connection :","{0:.3f}".format(stop-start)
+        print("Setup connection :","{0:.3f}".format(stop-start))
         for x in sock :
             x.settimeout(None)
         for i in range(n_node) :
@@ -203,7 +201,7 @@ def setup_connection() :
                 try :
                     msg = sock[i].recv(2)
                 except :
-                    safe_print(traceback.format_exc())
+                    time_print(traceback.format_exc())
                     raise Exception("Validate recv: socket[%i] with %s."%(i,i2ip[i]))
                 if (msg!="OK") :
                     raise Exception("Connection error. Message is not \"OK\".")
@@ -213,19 +211,19 @@ def setup_connection() :
         sock[node_id] = None
         #-----------------------------------
         if (debug) :
-            safe_print("Setup succeed.")
+            time_print("Setup succeed.")
         #-----------------------------------
     except :
         #-----------------------------------
         if (debug) :
-            safe_print("Setup failed.")
+            time_print("Setup failed.")
         #-----------------------------------
-        safe_print(traceback.format_exc())
+        time_print(traceback.format_exc())
 
 def close_connection() :
     #-----------------------------------
     if (debug) :
-        safe_print("Close connection.")
+        time_print("Close connection.")
     #-----------------------------------
     global sock, threads
     for x in threads :
@@ -245,11 +243,11 @@ def _send(idx,data) :
         with lock[idx] :
             sock[idx].sendall("x"+y+x)
     except :
-        safe_print(traceback.format_exc())
+        time_print(traceback.format_exc())
         raise Exception("Send : socket[%i] with %s is dead."%(idx,i2ip[idx]))
 
 def send(idx,data) :
-    # safe_print("DB <<" + str(idx))
+    # time_print("DB <<" + str(idx))
     if (idx==node_id) :
         raise "Cannot send message to myself."
     else :
@@ -295,6 +293,6 @@ def recv(idx) :
         x = cPickle.loads(s)
         return x
     except :
-        safe_print(traceback.format_exc())
+        time_print(traceback.format_exc())
         raise Exception("Recv : socket[%i] with %s is dead."%(idx,i2ip[idx]))
     return False

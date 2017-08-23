@@ -1,3 +1,4 @@
+from __future__ import print_function
 import socket
 import threading
 import os
@@ -15,8 +16,6 @@ PORT = 6969
 common_port_file = ".6e0p4VsmBevqUKmCpvrrzKYXkl6KV5lI"
 
 #================================C-O-M-M-O-N============================
-def safe_print(content) :
-    print "{0}\n".format(content),
 def join() :
     global threads
     for x in threads :
@@ -51,6 +50,9 @@ def read_ip_from(file) :
         except socket.error:
             pass
     f.close()
+    if (len(res) != len(set(res))) :
+        print("FATAL : IP list must be unique !")
+        quit()
     return res
 
 # build a pickle string that stores files, commands to run and some setting.
@@ -83,9 +85,9 @@ def send_data(sock, address, data, timeout = 100) :
         sock.sendall(data)
         sock.settimeout(timeout+2);
         msg = sock.recv(999999)
-        safe_print("--------(Node %s return)--------\n%s"%(address[0],str(msg)))
+        print("--------(Node %s return)--------\n%s"%(address[0],str(msg)))
     except :
-        safe_print("--------(send_script result)--------\n"+traceback.format_exc())
+        print("--------(send_script result)--------\n"+traceback.format_exc())
     sock.close()
 
 # Spawns subprocesses for each command sequentially.
@@ -97,7 +99,7 @@ def run_command(commands,block=True,timelimit=100,shell=False) :
     msg = ""
     try :
         for cmd in commands :
-            safe_print("$ %s"%cmd)
+            print("$ %s"%cmd)
             if (timelimit==0) :
                 timelimit = None
             try :
@@ -146,15 +148,15 @@ def send_command_to(ip, port, handler, handler_args=()) :
     sock.settimeout(3)
     try :
         sock.connect((ip,port))
-        safe_print("Connected to %s"%str((ip,port)))
-        safe_print("Accepted.")
+        print("Connected to %s"%str((ip,port)))
+        print("Accepted.")
         with lock :
             threads.append(threading.Thread(target=handler,args=(sock,(ip,port))+handler_args))
             threads[-1].start()
     except :
-        safe_print("Cannot connect to %s."%str((ip,port)))
+        print("Cannot connect to %s."%str((ip,port)))
         sock.close()
-        safe_print(traceback.format_exc())
+        print(traceback.format_exc())
 
 def distribute_script(data,slaves_ip) :
     global PORT
@@ -190,43 +192,43 @@ def receive_command_from(sock) :
                     with open(common_port_file,"w") as f :
                         f.write(data["port"])
                 block = data["block"]
-                safe_print(data["scripts"]["name"])
-                safe_print(data["commands"])
+                print(data["scripts"]["name"])
+                print(data["commands"])
                 for i in range(len(data["scripts"]["name"])) :
                     with open(data["scripts"]["name"][i],"wb") as f :
                         f.write(data["scripts"]["data"][i])                
                 result = run_command(data["commands"],block,data["timelimit"],False)
                 sock.send(result)
-                safe_print(result)
+                print(result)
                 return True
             else :
                 pass
         except :
-            safe_print("Command corrupted.")
-            safe_print(traceback.format_exc())
+            print("Command corrupted.")
+            print(traceback.format_exc())
         os.chdir(main_dir)
 
 def listen_to_master(port) :
     #Listen to master forever.
     if (master_ip is None) :
-        safe_print("Master is not set. Listen to everyone.")
+        print("Master is not set. Listen to everyone.")
     else :
-        safe_print("Master is set. Listen to %s."%master_ip)
+        print("Master is set. Listen to %s."%master_ip)
     sock = socket.socket()
     sock.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
     sock.bind(("",port))
     sock.listen(1000)
     try :
         while True :
-            safe_print("Listen to master...")
+            print("Listen to master...")
             sk,address = sock.accept()
             if not(master_ip is None) and (address[0]!=master_ip) :
                 sk.close()
                 continue
-            safe_print("Got connection from master.")
+            print("Got connection from master.")
             sk.settimeout(1)
             receive_command_from(sk)
             sk.close()
     except KeyboardInterrupt :
         sock.close()
-        safe_print("Socket closed.")
+        print("Socket closed.")
