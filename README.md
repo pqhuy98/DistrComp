@@ -1,7 +1,8 @@
 # DistrComp
 A distributed computing library.
 
-This library contains 4 main function : `node_id`, `n_node`, `send`, `recv`.
+This library contains 4 main function : `node_id`, `n_node`, `send`, `recv`.  
+You can send / receive many types of data (list, dict, set, numpy array,...), as long as they are pickle-able.
 
 ```python
 import message as ms
@@ -41,15 +42,34 @@ Total time : 1.455.
 ```
 
 <h2>How to use</h2>  
+
 Suppose you have `N` machine, then `1` of them would be master and `N-1` of them would be workers. You want to run `myprogram.py` on those machines.  
+
 On <b>each</b> worker machine :  
+
 1) Put `distrComp.py` and `worker.py` into a folder.
 2) Run command line `python -B worker.py`.
+
 On master machine :  
+
 1) Create file `peers.txt` contains IPs of all machines.
-2) Place `peers.txt`, `distrComp.py` and `master.py` into folder which contains `myprogram.py`.
-3) Tweak `master.py` to fit your purpose. Don't be afraid to read the code.
-4) If you don't understand, then...
+2) Place `peers.txt`, `distrComp.py`, `message.py` and `master.py` into folder which contains `myprogram.py`.
+3) Tweak `master.py` constants to fit your purpose. Don't be afraid of reading the code.
+4) When you're ready to go, run `python -B master.py`. Your `myprogram.py` would be automatically distributed to all workers.
+4) If you're still confused, then read...
 
 <h2>How it works</h2>
-When you run `worker.py`, the machine will listen to a determined port (default : 6969). When you run `master.py`, the master will connect to all workers specified in `peers.txt`, or more precisely, in variable `IPs`. In `master.py`, you specify which files you want send to workers and which terminal commands you want to execute simultaneously. The master will send those files and commands (encoded to a binary string) to workers. Workers receive the package, decode it, save the files into a temporary folder, set it as current working directory, then execute the commands.
+
+When you run `worker.py`, the machine will listen to a determined port (default : 6969). When you run `master.py`, the master will connect to all workers whose IPs are specified in `peers.txt`, or more precisely, the variable `IPs` inside `master.py`. 
+  
+By tweaking `master.py`, you specify which files (eg. source code, header files,...) you want send to workers and which terminal commands (eg. `python XXX.py`, `g++ main.cpp ; ./a.out`,...) you want to execute simultaneously. The master will send those files and commands (encoded as a binary string) to workers.  
+
+Workers will receive the string, decode it, save the files into a temporary folder, set the folder as current working directory and spawn subprocesses to execute the commands.  
+
+Output from STDOUT of those subprocesses are sent back to master to be printed out. 
+
+<h2>What these files do</h2>
+
+`distrComp.py` : required by `master.py` and `worker.py`  
+`master.py` and `worker.py` : scripts to run on master and workers.  
+`message.py` : handle connection between machines, implementation of `message.send`, `message.recv`.  
