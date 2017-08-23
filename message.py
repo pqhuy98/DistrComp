@@ -13,7 +13,7 @@ from timeit import default_timer as clock
 debug = False
 
 common_port_file = ".6e0p4VsmBevqUKmCpvrrzKYXkl6KV5lI"
-peers_file = "peers.txt"
+peers_file =       ".Xs9XoR1jPBWqptxPLJMJY5YuBZKADH32"
 #------
 # Utils
 #------
@@ -38,7 +38,7 @@ def read_ip_from(file) :
     try :
         f = open(file,"r")
     except :
-        raise "IP list \"%s\" is missing."%file
+        raise Exception("IP list \"%s\" is missing."%file)
     res = []
     tmp = f.read().splitlines()
     for ip in tmp  :
@@ -187,7 +187,8 @@ def setup_connection() :
         thr_listen.join()
         thr_connect.join()
         stop = clock()
-        print("Setup connection :","{0:.3f}".format(stop-start))
+        if (debug) :
+            print("Setup connection :","{0:.3f}".format(stop-start))
         for x in sock :
             x.settimeout(None)
         for i in range(n_node) :
@@ -249,7 +250,7 @@ def _send(idx,data) :
 def send(idx,data) :
     # time_print("DB <<" + str(idx))
     if (idx==node_id) :
-        raise "Cannot send message to myself."
+        raise Exception("Cannot send message to myself.")
     else :
         with threads_lock :
             threads.append(threading.Thread(target=_send,args=(idx,data)))

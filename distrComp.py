@@ -7,6 +7,8 @@ import traceback
 import uuid
 import cPickle as pickle
 
+debug = False
+
 lock = threading.Lock()
 threads = []
 master_ip = None
@@ -14,28 +16,27 @@ main_dir = os.getcwd()
 PORT = 6969
 
 common_port_file = ".6e0p4VsmBevqUKmCpvrrzKYXkl6KV5lI"
+peers_file =       ".Xs9XoR1jPBWqptxPLJMJY5YuBZKADH32"
 
 #================================C-O-M-M-O-N============================
 def join() :
     global threads
     for x in threads :
         x.join()
+
+# Search for an unused port.
 def get_new_port() :
     sock = socket.socket()
     sock.bind(("",0))
     res = sock.getsockname()[1]
     sock.close()
     return str(res)
+
+# Return my local IP in LAN.
 def local_ip() :
-    return [l
-        for l in ([ip
-            for ip in socket.gethostbyname_ex(socket.gethostname())[2]
-            if not ip.startswith("127.")
-        ][: 1], [
-            [(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close())
-                for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]
-        ]) if l
-    ][0][0]
+    return [l for l in ([ip for ip in socket.gethostbyname_ex(socket.gethostname())[2]if not ip.startswith("127.")][: 1], [[(s.connect(('8.8.8.8', 53)), s.getsockname()[0], s.close())for s in [socket.socket(socket.AF_INET, socket.SOCK_DGRAM)]][0][1]]) if l][0][0]
+
+# Read IP and discard wrong IPs.
 def read_ip_from(file) :
     try :
         f = open(file,"r")
@@ -45,6 +46,7 @@ def read_ip_from(file) :
     tmp = f.read().splitlines()
     for ip in tmp  :
         try:
+            # raise exception if IP is in wrong format.
             socket.inet_aton(ip)
             res.append(ip)
         except socket.error:
@@ -56,14 +58,20 @@ def read_ip_from(file) :
     return res
 
 # build a pickle string that stores files, commands to run and some setting.
-def make_script_package(files, commands, directory = None, block = True, timelimit = 5) :
+def make_script_package(files, commands, IPs=None, directory = None, block = True, timelimit = 5) :
     data = dict()
     if not(directory is None) :
         data["dir"] = directory
     data["type"] = "run_script"
-    data["port"] = get_new_port()
-    with open(common_port_file,"w") as f :
-        f.write(data["port"])
+    if IPs is not None :
+        data["IPs"] = IPs
+        data["port"] = get_new_port()
+        with open(peers_file,"w") as f :
+            for x in data["IPs"] :
+                f.write(x+"\n")
+        with open(common_port_file,"w") as f :
+            f.write(data["port"])
+
     data["block"] = block
     data["scripts"] = dict()
     data["scripts"]["name"]=list()
@@ -99,7 +107,8 @@ def run_command(commands,block=True,timelimit=100,shell=False) :
     msg = ""
     try :
         for cmd in commands :
-            print("$ %s"%cmd)
+            if (debug) :
+                print("$ %s"%cmd)
             if (timelimit==0) :
                 timelimit = None
             try :
@@ -148,8 +157,9 @@ def send_command_to(ip, port, handler, handler_args=()) :
     sock.settimeout(3)
     try :
         sock.connect((ip,port))
-        print("Connected to %s"%str((ip,port)))
-        print("Accepted.")
+        if debug :
+            print("Connected to %s"%str((ip,port)))
+            print("Accepted.")
         with lock :
             threads.append(threading.Thread(target=handler,args=(sock,(ip,port))+handler_args))
             threads[-1].start()
@@ -191,6 +201,10 @@ def receive_command_from(sock) :
                 if ("port" in data) :
                     with open(common_port_file,"w") as f :
                         f.write(data["port"])
+                if ("IPs" in data) :
+                    with open(peers_file,"w") as f :
+                        for x in data["IPs"] :
+                            f.write(x+"\n")
                 block = data["block"]
                 print(data["scripts"]["name"])
                 print(data["commands"])
