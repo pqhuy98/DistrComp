@@ -73,3 +73,5 @@ Output from STDOUT of those subprocesses are sent back to master to be printed o
 `distrComp.py` : required by `master.py` and `worker.py`  
 `master.py` and `worker.py` : scripts to run on master and workers.  
 `message.py` : handle connection between machines, implementation of `message.send`, `message.recv`.  
+
+<b>(WARNING)<b> This library was implemented when I started learning about socket programming (January 2017). Its functionality is pretty good. However, the implementation is naive and contains a very serious security hole. Also it's better to use MPI. This project is now an antique that reminds me what I've struggled with during my education.
