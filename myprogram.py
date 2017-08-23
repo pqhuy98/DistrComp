@@ -9,6 +9,8 @@ pre = (rank-1+nodes)%nodes
 
 print "My ID is", rank
 ms.send(nxt, "Next to %i is %i" % (rank, nxt))
-msg = ms.recv(pre)
 
+msg = ms.recv(pre)
 print msg
+
+ms.close_connection()
