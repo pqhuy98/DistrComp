@@ -4,7 +4,7 @@ A distributed computing library.
 This library contains 4 main function : `node_id`, `n_node`, `send`, `recv`. Using these 4 functions, one can parallelize a program across multi machines.  
 You can send / receive many types of data (list, dict, set, numpy array,...), as long as they are pickle-able.
 
-<h2>Example</h2>
+<h2>Syntax example</h2>
 
 ```python
 """
