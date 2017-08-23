@@ -22,9 +22,11 @@ pre = (myID-1+nodes)%nodes # avoid negative value
 
 print "My ID is", myID
 ms.send(nxt, "Next to %i is %i" % (myID, nxt))
-msg = ms.recv(pre)
 
+msg = ms.recv(pre)
 print msg
+
+ms.close_connection()
 ```
 Output on my cluster :
 ```
