@@ -1,7 +1,7 @@
 # DistrComp
 A distributed computing library.
 
-This library contains 4 main function : `node_id`, `n_node`, `send`, `recv`. Using these 4 functions, one can parallelize a program across multi machines.  
+This library contains 4 main functions : `node_id`, `n_node`, `send`, `recv`. Using these 4 functions, one can parallelize a program across multi machines.  
 You can send / receive many types of data (list, dict, set, numpy array,...), as long as they are pickle-able.
 
 <h2>Syntax example</h2>
@@ -30,19 +30,19 @@ ms.close_connection()
 ```
 Output on my cluster :
 ```
---------(Node localhost     return)--------
+--------(Node localhost     returns)--------
 My ID is 2
 Next to 1 is 2
 
---------(Node 192.168.0.113 return)--------
+--------(Node 192.168.0.113 returns)--------
 My ID is 3
 Next to 2 is 3
 
---------(Node 192.168.0.179 return)--------
+--------(Node 192.168.0.179 returns)--------
 My ID is 1
 Next to 0 is 1
 
---------(Node 192.168.0.169 return)--------
+--------(Node 192.168.0.169 returns)--------
 My ID is 0
 Next to 3 is 0
 
@@ -51,7 +51,7 @@ Total time : 1.523.
 
 <h2>How to use</h2>  
 
-Suppose you have `N` machine, then `1` of them would be master and `N-1` of them would be workers. You want to run `myprogram.py` on those machines.  
+Suppose you have `N` machines, then `1` of them would be master and `N-1` of them would be workers. You want to run `myprogram.py` on those machines.  
 
 On <b>each</b> worker machine :  
 
