@@ -93,7 +93,7 @@ def send_data(sock, address, data, timeout = 100) :
         sock.sendall(data)
         sock.settimeout(timeout+2);
         msg = sock.recv(999999)
-        print("--------(Node %s return)--------\n%s"%(address[0],str(msg)))
+        print("--------(Node %s returns)--------\n%s"%(address[0],str(msg)))
     except :
         print("--------(send_script result)--------\n"+traceback.format_exc())
     sock.close()
