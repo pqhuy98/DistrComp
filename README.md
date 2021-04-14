@@ -1,4 +1,7 @@
 # DistrComp
+
+<b>(PREFACE)<b> This library was implemented when I started learning about socket programming and distributed computing (January 2017). Its functionality is pretty good. However, the implementation is naive and contains a serious security hole. Also it's better to use MPI. This project is now an antique that reminds me what I've been through during my education.
+
 A distributed computing library.
 
 This library contains 4 main functions : `node_id`, `n_node`, `send`, `recv`. Using these 4 functions, one can parallelize a program across multi machines.  
@@ -81,5 +84,3 @@ Output from STDOUT of those subprocesses are sent back to master to be printed o
 `distrComp.py` : required by `master.py` and `worker.py`  
 `master.py` and `worker.py` : scripts to run on master and workers.  
 `message.py` : handle connection between machines, implementation of `message.send`, `message.recv`.  
-
-<b>(WARNING)<b> This library was implemented when I started learning about socket programming (January 2017). Its functionality is pretty good. However, the implementation is naive and contains a very serious security hole. Also it's better to use MPI. This project is now an antique that reminds me what I've struggled with during my education.
