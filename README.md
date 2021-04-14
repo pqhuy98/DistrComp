@@ -1,8 +1,10 @@
 # DistrComp
 A distributed computing library.
 
-<b>(PREFACE)<b> This library was implemented when I started learning about socket programming and distributed computing (January 2017). Its functionality is pretty good. However, the implementation is naive and contains a serious security hole. Also it's better to use MPI. This project is now an antique that reminds me what I've been through during my education.</b>
+## PREFACE
+This library was implemented when I started learning about socket programming and distributed computing (January 2017). Its functionality is pretty good. However, the implementation is naive and contains a serious security hole. Also it's better to use MPI. This project is now an antique that reminds me what I've been through during my education.
 
+## Introduction
 
 This library contains 4 main functions : `node_id`, `n_node`, `send`, `recv`. Using these 4 functions, one can parallelize a program across multi machines.  
 You can send / receive many types of data (list, dict, set, numpy array,...), as long as they are pickle-able.
